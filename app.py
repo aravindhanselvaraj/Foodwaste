@@ -11,20 +11,21 @@ def get_engine():
 engine = get_engine()
 
 # --- Sidebar Navigation ---
-st.sidebar.title("Navigation")
-section = st.sidebar.radio("Go to:", ["CRUD Operations", "Analysis Queries"])
+st.sidebar.title("🍽️ Local Food Wastage Management")
+section = st.sidebar.radio("📌 Navigate to:", ["🏗️ CRUD Operations", "📊 Analysis Dashboard"])
 
-if section == "CRUD Operations":
-    crud_table = st.sidebar.selectbox("Select table to manage:", ["providers", "receivers", "food_donations", "food_claims"])
-    st.title(f"Manage {crud_table.replace('_', ' ').title()}")
+if section == "🏗️ CRUD Operations":
+    crud_table = st.sidebar.selectbox("📋 Select Table:", ["providers", "receivers", "food_donations", "food_claims"])
+    st.title(f"🔧 Manage {crud_table.replace('_', ' ').title()}")
 
     # --- CRUD Operations ---
     with engine.connect() as conn:
         df = pd.read_sql_query(f'SELECT * FROM "{crud_table}"', conn)
+        st.subheader("📄 Existing Records")
         st.dataframe(df, use_container_width=True)
 
         # Add new row
-        st.subheader("Add New Entry")
+        st.subheader("➕ Add New Entry")
         new_data = {}
         for column in df.columns:
             if column == "id":
@@ -36,10 +37,10 @@ if section == "CRUD Operations":
             vals = ", ".join([f':{k}' for k in new_data.keys()])
             insert_query = text(f"INSERT INTO \"{crud_table}\" ({cols}) VALUES ({vals})")
             conn.execute(insert_query, new_data)
-            st.success("New entry added successfully!")
+            st.success("✅ New entry added successfully!")
 
         # Update entry
-        st.subheader("Update Existing Entry")
+        st.subheader("✏️ Update Existing Entry")
         row_id = st.text_input("Enter ID to update:", key="update_id")
         updates = {}
         for column in df.columns:
@@ -53,18 +54,19 @@ if section == "CRUD Operations":
             updates["id"] = row_id
             update_query = text(f"UPDATE \"{crud_table}\" SET {set_clause} WHERE id = :id")
             conn.execute(update_query, updates)
-            st.success("Entry updated successfully!")
+            st.success("🔄 Entry updated successfully!")
 
         # Delete entry
-        st.subheader("Delete Entry")
+        st.subheader("🗑️ Delete Entry")
         delete_id = st.text_input("Enter ID to delete:", key="delete_id")
         if st.button("Delete Entry") and delete_id:
             delete_query = text(f"DELETE FROM \"{crud_table}\" WHERE id = :id")
             conn.execute(delete_query, {"id": delete_id})
-            st.success("Entry deleted successfully!")
+            st.success("❌ Entry deleted successfully!")
 
-elif section == "Analysis Queries":
+elif section == "📊 Analysis Dashboard":
     st.title("📊 Food Waste Analysis Dashboard")
+    st.caption("Visual insights from provider and receiver activity")
 
     query_options = [
         "Top 5 Food Providers",
@@ -84,7 +86,7 @@ elif section == "Analysis Queries":
         "Oldest Unclaimed Donations"
     ]
 
-    selected_query = st.selectbox("Choose an analysis:", query_options)
+    selected_query = st.selectbox("📌 Choose an analysis:", query_options)
 
     query_dict = {
         "Top 5 Food Providers": "SELECT p.name, COUNT(d.id) AS total_donations FROM food_donations d JOIN providers p ON d.provider_id = p.id GROUP BY p.name ORDER BY total_donations DESC LIMIT 5",
@@ -107,8 +109,8 @@ elif section == "Analysis Queries":
     with engine.connect() as conn:
         try:
             df = pd.read_sql_query(query_dict[selected_query], conn)
+            st.subheader(f"📌 Result: {selected_query}")
             st.dataframe(df, use_container_width=True)
-            if st.download_button("Download CSV", df.to_csv(index=False), file_name="analysis.csv"):
-                st.success("Download started")
+            st.download_button("⬇️ Download CSV", df.to_csv(index=False), file_name="analysis.csv")
         except Exception as e:
-            st.error("Error running the query.")
+            st.error("⚠️ Error running the query. Please check your data.")
