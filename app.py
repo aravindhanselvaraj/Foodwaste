@@ -4,14 +4,12 @@ import psycopg2
 from sqlalchemy import create_engine
 
 # ------------------------ DATABASE CONFIGURATION ------------------------
-DB_HOST = 'localhost'
-DB_PORT = '5432'
-DB_NAME = 'foodwaste'
-DB_USER = 'postgres'
-DB_PASSWORD = 'postgresql'
+from sqlalchemy import create_engine
 
-def get_engine():
-    return create_engine(f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}")
+# Use Render PostgreSQL connection string
+DATABASE_URL = "postgresql://foodwaste_db_user:0tFgqsbEBjUEahV83y8jbruY5kcCbUJ1@dpg-d25191p5pdvs73ccfn2g-a.oregon-postgres.render.com/foodwaste_db"
+engine = create_engine(DATABASE_URL)
+
 
 # ------------------------ QUERY DEFINITIONS ------------------------
 ANALYSIS_QUERIES = {
