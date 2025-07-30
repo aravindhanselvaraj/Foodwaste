@@ -6,9 +6,13 @@ from sqlalchemy import create_engine
 # ------------------------ DATABASE CONFIGURATION ------------------------
 from sqlalchemy import create_engine
 
-# Use Render PostgreSQL connection string
-DATABASE_URL = "postgresql://foodwaste_db_user:0tFgqsbEBjUEahV83y8jbruY5kcCbUJ1@dpg-d25191p5pdvs73ccfn2g-a.oregon-postgres.render.com/foodwaste_db"
-engine = create_engine(DATABASE_URL)
+def get_engine():
+    return create_engine(
+        "postgresql://foodwaste_db_user:0tFgqsbEBjUEahV83y8jbruY5kcCbUJ1@dpg-d25191p5pdvs73ccfn2g-a.oregon-postgres.render.com/foodwaste_db"
+    )
+
+engine = get_engine()
+
 
 
 # ------------------------ QUERY DEFINITIONS ------------------------
